@@ -7,23 +7,126 @@
 <title>Insert title here</title>
 </head>
 <body>
-<% 
-	if(session==null||session.getAttribute("username")==null){
-		response.sendRedirect("./login.jsp");
-		return;
-	}
-	String username = (String)session.getAttribute("username");
+<%@ page import="java.sql.*" import="cse135.DbConnection"%>
+<jsp:include page="links.jsp"></jsp:include>
+<%
 	String role = (String)session.getAttribute("role");
 	if(!role.equals("owner")){
-		session.setAttribute("error", "this page is available to owners only");
+		//session.setAttribute("error", "this page is available to owners only");
+		//response.sendRedirect("./error.jsp");
+%>
+<p>This page is available to owners only</p>		
+<%		
+		return;
+	}
+	
+	Connection conn = DbConnection.connect();
+	if (conn == null) {
+		session.setAttribute("error", "internal service error");
 		response.sendRedirect("./error.jsp");
 		return;
 	}
+	
+	PreparedStatement pstmt = null;
+	ResultSet rs = null;
+
+	
+	String action = request.getParameter("action");
+	if (action != null && action.equals("insert")) {
+		if (request.getParameter("product_name") == null) {
+%>
+<p>Please name the product</p>
+<%
+			return;
+		}
+		else if(request.getParameter("description") == null) {
+%>
+<p>Please write the description for the product</p>
+<%
+			return;
+		}
+		
+		
+		// Create the prepared statement to INSERT student values
+		pstmt = conn.prepareStatement("INSERT INTO categories (name, description) VALUES (?, ?)");
+		pstmt.setString(1, request.getParameter("product_name"));
+		pstmt.setString(2, request.getParameter("description"));
+		int rowCount = pstmt.executeUpdate();
+	}
+	else if (action != null && action.equals("delete")) {
+		if (request.getParameter("product_name") == null) {
+%>
+<p>Please select the product you want to delete</p>
+<%
+			return;
+		}		
+		
+		// Create the prepared statement to INSERT student values
+		pstmt = conn.prepareStatement("DELETE FROM categories WHERE name = ?");
+		pstmt.setString(1, request.getParameter("product_name"));
+		int rowCount = pstmt.executeUpdate();
+	}
+		
+	try {
+
+		pstmt = conn.prepareStatement("SELECT name, description from categories");
+		rs = pstmt.executeQuery();
+%>
+	<table>
+		 <tr>
+		 	<th>Name</th>
+		 	<th>Description</th>
+		 </tr>
+		 <tr>
+			<form action="categories.jsp" method="post">
+				<input type="hidden" name="action" value="insert"/>
+				<th>&nbsp;</th>
+				<th><input value="" name="product_name" size="10"/></th>
+				<th><input value="" name="description" size="25"/></th>
+				<th><input type = "submit" value = "insert"></th>
+			</form>
+		 </tr>
+		 
+<%
+		while(rs.next()) {
+%>
+		<tr>
+			<form action = "categories.jsp" method = "POST">
+				<input type = "hidden" name = "action" value = "update"/>
+				<input type = "hidden" name = "product_name" value = "<%= rs.getString("name") %>"/>
+				<input type = "hidden" name = "description" value = ""/>
+				<%-- Get the name--%>
+				<td><%=rs.getString("name")%></td>
+
+				<%-- Get the description --%>
+				<td><%=rs.getString("description")%></td>
+				<td><input type = "submit" value = "update"></td>
+			</form>
+			
+			<form action = "categories.jsp" method = "POST">
+				<input type = "hidden" name = "action" value = "delete"/>
+				<input type = "hidden" name = "product_name" value = "<%= rs.getString("name") %>" />
+				<td><input type = "submit" value = "delete"/></td>
+			</form>			
+		</tr>
+			
+<%
+		}
 %>
 
-<p>
-Hello <%=username %>
-</p>
+	</table>
+<%
+	}
+	catch(SQLException e){
+    	e.printStackTrace();   	
+    }
+	finally {
+		pstmt.close();
+		rs.close();
+	}
+	
+	
+%>
 
 </body>
 </html>
