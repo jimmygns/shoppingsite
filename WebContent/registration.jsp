@@ -28,7 +28,14 @@
 	</form>
 	<%
 	
-	
+	if (request.getParameter("username") == null || request.getParameter("role") == null || request.getParameter("age") == null || request.getParameter("state") == null) {
+		//session.setAttribute("error", "please fill all the fields");
+		//response.sendRedirect("./error.jsp");
+		%>
+		<p>please fill in all the fields</p>
+		<%
+		return;
+	}
 		if (request.getParameter("username").isEmpty() || request.getParameter("role").isEmpty() || request.getParameter("age").isEmpty() || request.getParameter("state").isEmpty()) {
 			//session.setAttribute("error", "please fill all the fields");
 			//response.sendRedirect("./error.jsp");
