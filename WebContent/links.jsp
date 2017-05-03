@@ -8,16 +8,16 @@
 	String role = (String)session.getAttribute("role");
 %>
 
-<p>
-Hello <%=username %>
+<p align="right">
+		Hello <%=username%>     
+	<%
+		if (role.equals("customer")) {
+	%>
+	<a href="./cart.jsp">   Buy Shopping Cart</a>
+	<%
+		}
+	%>
 </p>
-<% 
-	if(role.equals("user")){
-		%>
-		<a href="./cart.jsp">shopping cart</a>
-		<%
-	}
-%>
 
 <nav>
 <a href="./product_browsing.jsp">products browsing</a>

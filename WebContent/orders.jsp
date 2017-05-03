@@ -6,6 +6,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Insert title here</title>
 </head>
+<%@ page import="java.sql.*" import="cse135.DbConnection" import="cse135.Product"%>
 <body>
 <% 
 	if(session==null||session.getAttribute("username")==null){
@@ -16,15 +17,43 @@
 	String role = (String)session.getAttribute("role");
 %>
 
-<p>
-Hello <%=username %>
+<p align="right">
+		Hello <%=username%>     
+	<%
+		if (role.equals("customer")) {
+	%>
+	<a href="./cart.jsp">   Buy Shopping Cart</a>
+	<%
+		}
+	%>
 </p>
-<% 
-	if(role.equals("user")){
-		%>
-		<a href="./cart.jsp">shopping cart</a>
-		<%
+
+<%
+Connection conn = null;
+PreparedStatement pstmt = null;
+ResultSet rs = null;
+
+String action = request.getParameter("action");
+// Check if an insertion is requested
+if (action != null && action.equals("add")) {
+	String name = request.getParameter("name");
+	int sku = Integer.parseInt(request.getParameter("sku"));
+	int quantity = Integer.parseInt(request.getParameter("quantity"));
+	Product p = new Product(sku, name, quantity);
+	if(session.getAttribute("cart")==null){
+		
 	}
+}
+
+
+    
+    conn = DbConnection.connect();
+
+    String sku = request.getParameter("sku");
+    if(sku !=null){
+    	String name = request.getParameter("name");
+    	
+    }
 %>
 
 </body>

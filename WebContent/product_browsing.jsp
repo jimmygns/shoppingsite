@@ -16,23 +16,34 @@
 		}
 		String username = (String) session.getAttribute("username");
 		String role = (String) session.getAttribute("role");
+		String action = request.getParameter("action");
+        // Check if an insertion is requested
+        String link = "";
+        if (request.getParameter("link") != null) {
+        	link = request.getParameter("link");
+        }
 	%>
 
-	<p>
-		Hello
-		<%=username%>
-	</p>
+	<p align="right">
+		Hello <%=username%>     
 	<%
-		if (role.equals("user")) {
+		if (role.equals("customer")) {
 	%>
-	<a href="./cart.jsp">shopping cart</a>
+	<a href="./cart.jsp">   Buy Shopping Cart</a>
 	<%
 		}
 	%>
-	<form action="./product_browsing.jsp">
-		<input type="text">
+	</p>
+	
+	<form action="./product_browsing.jsp" method="post">
+		<input type="hidden" name="action" value="search"/>
+		search: <input type="text" name="search"/>
+		<input type="hidden" name="link" value="<%=link%>"/>
+		<button type="submit"> search</button>
 	</form>
-
+<table>
+<tr>
+<td>
 		<ul>
 
 			<%
@@ -59,31 +70,65 @@
 			%>
 
 		</ul>
+		</td>
+		<td>
+		<table border="1">
+            <tr>
+                <th>Name</th>
+                <th>SKU</th>
+                <th>Category</th>
+                <th>Price</th>
+            </tr>
 	
 	<%
-		String search = request.getParameter("search");
-			String link = request.getParameter("link");
+			String search = request.getParameter("search");
 
 			pstmt.close();
 			rs.close();
+			if(action!=null && action.equals("search")){
+				if(link.isEmpty()){
+					pstmt = conn.prepareStatement("SELECT * from products where name like ?");
+					pstmt.setString(1, search);
+				}
+				else{
+					pstmt = conn.prepareStatement("SELECT * from products where category = ? name like ?");
+					pstmt.setString(1, link);
+					pstmt.setString(2, search);
+				}
+				
+			}
+			else{
+				if(link.isEmpty()){
+					pstmt = conn.prepareStatement("SELECT * from products");
+				}
+				else{
+					pstmt = conn.prepareStatement("SELECT * from products where category = ?");
+					pstmt.setString(1, link);
+				}
+			}
 
-			pstmt = conn.prepareStatement("SELECT * from products where category=? and name like ?");
-			if (link == null) {
-				pstmt.setString(1, "*");
-			} else {
-				pstmt.setString(1, link);
-			}
-			if (search == null) {
-				pstmt.setString(2, "*");
-			} else {
-				pstmt.setString(2, search);
-			}
 			rs = pstmt.executeQuery();
 			while (rs.next()) {
 	%>
-	<ul>
-
-	</ul>
+	<tr>
+	<td>
+	<form action="./orders.jsp" method="POST">
+    	<input type="hidden" name="sku" value="<%=rs.getInt(2) %>"/>
+    	<input type="hidden" name="name" value="<%=rs.getString(1) %>"/>
+    	<input type="submit" value="<%=rs.getString(1)%>" readonly="readonly"/>
+    </form>
+	
+	</td>
+	<td>
+	<%=rs.getInt(2) %>
+	</td>
+	<td>
+	<%=rs.getString(3) %>
+	</td>
+	<td>
+	<%=rs.getDouble(4) %>
+	</td>
+	</tr>
 	<%
 		}
 
@@ -113,6 +158,9 @@
 			}
 		}
 	%>
-
+	</table>
+	</td>
+	</tr>
+</table>
 </body>
 </html>
