@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<h1>
+		Registration Form
+	</h1>
+	<form action = "registration.jsp" method="post">
+		User name:<input type = "text" NAME = "username"/><p>
+		Role:<SELECT name = "role">
+			<option value = "owner">owner</option>
+			<option value = "customer">customer</option>
+		</SELECT>
+		<p>
+		Age:<input type = "number" NAME = "age"/><p>
+		State:<SELECT name = "state">
+			<OPTION value="CA">CA</OPTION>
+			<OPTION value="IL">IL</OPTION>
+			<OPTION value="IN">IN</OPTION>
+		</SELECT>
+		<button type = "submit">SIGNUP</button>
+	</form>
+	<form action = "login.jsp" method = "post">
+		<button type = "submit">CANCEL</button>
+	</form>
+</body>
+</html>
