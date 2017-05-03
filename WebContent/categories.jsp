@@ -33,25 +33,32 @@
 	
 	String action = request.getParameter("action");
 	if (action != null && action.equals("insert")) {
-		if (request.getParameter("product_name") == null) {
+		if (request.getParameter("product_name").isEmpty()) {
 %>
 <p>Please name the product</p>
 <%
 			return;
 		}
-		else if(request.getParameter("description") == null) {
+		else if(request.getParameter("description").isEmpty()) {
 %>
 <p>Please write the description for the product</p>
 <%
 			return;
 		}
 		
+		if(request.getParameter("product_name").isEmpty() || request.getParameter("description").isEmpty()){
+%>
+<p>please fill in all the fields </p>
+<%
+		}
+		else {
 		
-		// Create the prepared statement to INSERT student values
-		pstmt = conn.prepareStatement("INSERT INTO categories (name, description) VALUES (?, ?)");
-		pstmt.setString(1, request.getParameter("product_name"));
-		pstmt.setString(2, request.getParameter("description"));
-		int rowCount = pstmt.executeUpdate();
+			// Create the prepared statement to INSERT student values
+			pstmt = conn.prepareStatement("INSERT INTO categories (name, description) VALUES (?, ?)");
+			pstmt.setString(1, request.getParameter("product_name"));
+			pstmt.setString(2, request.getParameter("description"));
+			int rowCount = pstmt.executeUpdate();
+		}
 	}
 	else if (action != null && action.equals("delete")) {
 		if (request.getParameter("product_name") == null) {
