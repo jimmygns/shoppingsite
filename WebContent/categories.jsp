@@ -60,11 +60,16 @@
 <%
 			return;
 		}		
-		
-		// Create the prepared statement to INSERT student values
-		pstmt = conn.prepareStatement("DELETE FROM categories WHERE name = ?");
-		pstmt.setString(1, request.getParameter("product_name"));
-		int rowCount = pstmt.executeUpdate();
+		try {
+			pstmt = conn.prepareStatement("DELETE FROM categories WHERE name = ?");
+			pstmt.setString(1, request.getParameter("product_name"));
+			int rowCount = pstmt.executeUpdate();
+		}
+		catch(SQLException e){
+%>
+<p>Cannot delete the specific category</p>
+<%
+		}
 	}
 		
 	try {
@@ -72,7 +77,7 @@
 		pstmt = conn.prepareStatement("SELECT name, description from categories");
 		rs = pstmt.executeQuery();
 %>
-	<table>
+	<table border=1>
 		 <tr>
 		 	<th>Name</th>
 		 	<th>Description</th>
@@ -80,7 +85,6 @@
 		 <tr>
 			<form action="categories.jsp" method="post">
 				<input type="hidden" name="action" value="insert"/>
-				<th>&nbsp;</th>
 				<th><input value="" name="product_name" size="10"/></th>
 				<th><input value="" name="description" size="25"/></th>
 				<th><input type = "submit" value = "insert"></th>

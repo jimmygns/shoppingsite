@@ -29,7 +29,7 @@
 	<%
 	
 	
-		if (request.getParameter("username") == null || request.getParameter("role") == null || request.getParameter("age") == null || request.getParameter("state") == null) {
+		if (request.getParameter("username").isEmpty() || request.getParameter("role").isEmpty() || request.getParameter("age").isEmpty() || request.getParameter("state").isEmpty()) {
 			//session.setAttribute("error", "please fill all the fields");
 			//response.sendRedirect("./error.jsp");
 			%>
@@ -42,7 +42,16 @@
 		String role = request.getParameter("role");
 		//session.putValue("role", role);
 		String age = request.getParameter("age");
-		int ageInt = Integer.parseInt(age);
+		int ageInt;
+		try {
+			ageInt = Integer.parseInt(age);
+		}
+		catch(NumberFormatException e) {
+%>
+<p>Please insert number in the age field</p>
+<%
+			return;
+		}
 		//session.putValue("age", age);
 		String state = request.getParameter("state");
 		//session.putValue("state", state);
