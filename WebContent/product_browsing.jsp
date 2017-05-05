@@ -59,12 +59,12 @@
 
 				try {
 
-					pstmt = conn.prepareStatement("SELECT name from categories");
+					pstmt = conn.prepareStatement("SELECT id, name from categories");
 
 					rs = pstmt.executeQuery();
 					while (rs.next()) {
 			%>
-			<li><a href="./product_browsing.jsp?link=<%=rs.getString(1)%>"><%=rs.getString(1)%></a>
+			<li><a href="./product_browsing.jsp?link=<%=rs.getInt(1)%>"><%=rs.getString(2)%></a>
 			</li>
 			<%
 				}
@@ -88,28 +88,30 @@
 			rs.close();
 			if(action!=null && action.equals("search")){
 				if(link.isEmpty()){
-					pstmt = conn.prepareStatement("SELECT * from products where name like ?");
+					pstmt = conn.prepareStatement("SELECT p.name,p.sku,c.name,p.price,p.id from products p INNER JOIN categories c ON p.category=c.id where p.name like ?");
+					
 					pstmt.setString(1, "%"+search+"%");
 				}
 				else{
-					pstmt = conn.prepareStatement("SELECT * from products where category = ? name like ?");
-					pstmt.setString(1, link);
+					pstmt = conn.prepareStatement("SELECT p.name,p.sku,c.name,p.price,p.id from products p INNER JOIN categories c ON p.category=c.id where p.category = ? AND p.name like ?");
+					pstmt.setInt(1, Integer.parseInt(link));
 					pstmt.setString(2, "%"+search+"%");
 				}
 				
 			}
 			else{
 				if(link.isEmpty()){
-					pstmt = conn.prepareStatement("SELECT * from products");
+					pstmt = conn.prepareStatement("SELECT p.name,p.sku,c.name,p.price,p.id from products p INNER JOIN categories c ON p.category=c.id");
 				}
 				else{
-					pstmt = conn.prepareStatement("SELECT * from products where category = ?");
-					pstmt.setString(1, link);
+					pstmt = conn.prepareStatement("SELECT p.name,p.sku,c.name,p.price,p.id from products p INNER JOIN categories c ON p.category=c.id where p.category = ?");
+					pstmt.setInt(1, Integer.parseInt(link));
 				}
 			}
 
 			rs = pstmt.executeQuery();
 			while (rs.next()) {
+				
 	%>
 	<tr>
 	<td>
@@ -117,6 +119,7 @@
     	<input type="hidden" name="sku" value="<%=rs.getInt(2) %>"/>
     	<input type="hidden" name="name" value="<%=rs.getString(1) %>"/>
     	<input type="hidden" name="price" value="<%=rs.getDouble(4) %>">
+    	<input type="hidden" name="id" value="<%=rs.getInt(5) %>">
     	<input type="submit" value="<%=rs.getString(1)%>" readonly="readonly"/>
     </form>
 	

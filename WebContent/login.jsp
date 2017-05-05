@@ -30,7 +30,7 @@
 
 	try {
 
-		pstmt = conn.prepareStatement("SELECT role, age, state from users WHERE name=?");
+		pstmt = conn.prepareStatement("SELECT role, age, state, id from users WHERE name=?");
 		String name = request.getParameter("username");
 		pstmt.setString(1, name);
 		rs = pstmt.executeQuery();
@@ -41,6 +41,7 @@
 			session.setAttribute("role", rs.getString(1));
 			session.setAttribute("age", rs.getInt(2));
 			session.setAttribute("state", rs.getString(3));
+			session.setAttribute("id", rs.getInt(4));
 			response.sendRedirect("./home.jsp");
 			return;
 		} else {

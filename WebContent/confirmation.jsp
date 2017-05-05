@@ -12,7 +12,11 @@
 <%@ page import="java.sql.*" import="cse135.DbConnection"
 		import="cse135.Product" import="java.util.ArrayList" import="java.util.Calendar"%>
 <% 
-
+if(request.getParameter("card") == null){
+	session.setAttribute("error", "wrong request");
+	response.sendRedirect("./error.jsp");
+	return;
+}
 
 if (session.getAttribute("cart") != null) {
 	ArrayList<Product> list = (ArrayList<Product>) session.getAttribute("cart");
@@ -29,7 +33,7 @@ if (session.getAttribute("cart") != null) {
 			response.sendRedirect("./error.jsp");
 			return;
 		}
-		String username = (String) session.getAttribute("username");
+		int username = (Integer) session.getAttribute("id");
 		Calendar cal = Calendar.getInstance();
 		Timestamp timestamp = new Timestamp(cal.getTimeInMillis());
 		conn.setAutoCommit(false);
@@ -37,15 +41,17 @@ if (session.getAttribute("cart") != null) {
 		for (Product p : list) {
 
 			try {
-				pstmt = conn.prepareStatement("INSERT into orders (user_name, product, quantity, order_date, price) values (?,?,?,?,?)");
-				pstmt.setString(1, username);
-				pstmt.setInt(2, p.sku);
+				pstmt = conn.prepareStatement("INSERT into orders (user_name, product, quantity, order_date, price, card) values (?,?,?,?,?,?)");
+				pstmt.setInt(1, username);
+				pstmt.setInt(2, p.id);
 				pstmt.setInt(3, p.quantity);
 				pstmt.setTimestamp(4, timestamp);
 				pstmt.setDouble(5, p.price);
+				pstmt.setString(6, request.getParameter("card"));
 				
 				int rowCount= pstmt.executeUpdate();
 			} catch (SQLException e) {
+				e.printStackTrace();
 
 			}
 		}

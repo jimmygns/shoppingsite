@@ -32,7 +32,8 @@ if (action != null && action.equals("add")) {
 		return;
 	}
 	double price = Double.parseDouble(request.getParameter("price"));
-	Product p = new Product(sku, name, price, quantity);
+	int id = Integer.parseInt(request.getParameter("id"));
+	Product p = new Product(sku, name, price, quantity, id);
 	ArrayList<Product> list;
 	if(session.getAttribute("cart")==null){
 		list = new ArrayList<Product>();
@@ -52,12 +53,14 @@ if (action != null && action.equals("add")) {
     String sku = request.getParameter("sku");
     if(sku !=null){
     	String name = request.getParameter("name");
-    	int id = Integer.parseInt(sku);
+    	//int id = Integer.parseInt(sku);
+    	int id = Integer.parseInt(request.getParameter("id"));
     	double price = Double.parseDouble(request.getParameter("price"));
     	%>
     	
     	<form action="./orders.jsp">
     	<input type="hidden" name="action" value="add"/>
+    	<input type="hidden" name="id" value="<%=id%>"/>
     	sku: <input type="text" name="sku" value="<%=sku%>" readonly>
     	name: <input type="text" name="name" value="<%=name%>" readonly>
     	price: <input type="text" name="price" value="<%=price%>" readonly>

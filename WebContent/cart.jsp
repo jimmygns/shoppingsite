@@ -51,7 +51,7 @@
 		<%=total%></p>
 	<form action="./confirmation.jsp">
 		<input type="hidden" name="action" value="buy" /> Credit Card Number:
-		<input type="text" name="card">
+		<input type="number" name="card">
 		<button type="submit">Checkout</button>
 	</form>
 	<%
