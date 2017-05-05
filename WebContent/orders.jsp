@@ -6,55 +6,92 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Insert title here</title>
 </head>
-<%@ page import="java.sql.*" import="cse135.DbConnection" import="cse135.Product"%>
+<%@ page import="java.sql.*" import="cse135.DbConnection" import="cse135.Product" import="java.util.ArrayList"%>
 <body>
-<% 
-	if(session==null||session.getAttribute("username")==null){
-		response.sendRedirect("./login.jsp");
-		return;
-	}
-	String username = (String)session.getAttribute("username");
-	String role = (String)session.getAttribute("role");
-%>
-
-<p align="right">
-		Hello <%=username%>     
-	<%
-		if (role.equals("customer")) {
-	%>
-	<a href="./cart.jsp">   Buy Shopping Cart</a>
-	<%
-		}
-	%>
-</p>
+<jsp:include page="./links.jsp"></jsp:include>
 
 <%
-Connection conn = null;
-PreparedStatement pstmt = null;
-ResultSet rs = null;
+
+if(session==null||session.getAttribute("username")==null){
+	session.setAttribute("error", "No user logged in");
+	response.sendRedirect("./error.jsp");
+	return;
+}
 
 String action = request.getParameter("action");
 // Check if an insertion is requested
 if (action != null && action.equals("add")) {
 	String name = request.getParameter("name");
 	int sku = Integer.parseInt(request.getParameter("sku"));
-	int quantity = Integer.parseInt(request.getParameter("quantity"));
-	Product p = new Product(sku, name, quantity);
-	if(session.getAttribute("cart")==null){
-		
+	int quantity = 0;
+	try{
+		quantity = Integer.parseInt(request.getParameter("quantity"));
 	}
+	catch(NumberFormatException e){
+		response.sendRedirect("./product_browsing.jsp");
+		return;
+	}
+	double price = Double.parseDouble(request.getParameter("price"));
+	Product p = new Product(sku, name, price, quantity);
+	ArrayList<Product> list;
+	if(session.getAttribute("cart")==null){
+		list = new ArrayList<Product>();
+	}
+	else{
+		list = (ArrayList<Product>) session.getAttribute("cart");
+	}
+	list.add(p);
+	session.setAttribute("cart", list);
+	response.sendRedirect("./product_browsing.jsp");
+	return;
 }
 
 
-    
-    conn = DbConnection.connect();
+   
 
     String sku = request.getParameter("sku");
     if(sku !=null){
     	String name = request.getParameter("name");
+    	int id = Integer.parseInt(sku);
+    	double price = Double.parseDouble(request.getParameter("price"));
+    	%>
     	
+    	<form action="./orders.jsp">
+    	<input type="hidden" name="action" value="add"/>
+    	sku: <input type="text" name="sku" value="<%=sku%>" readonly>
+    	name: <input type="text" name="name" value="<%=name%>" readonly>
+    	price: <input type="text" name="price" value="<%=price%>" readonly>
+    	quantity: <input type="number" name="quantity">
+    	<button type="submit">add to cart</button>
+    	</form>
+    	
+    	<%
+    }
+    if(session.getAttribute("cart")!=null){
+    	ArrayList<Product> list = (ArrayList<Product>) session.getAttribute("cart");
+    	%>
+    	<table>
+    	<tr>
+    			<th>SKU</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Quantity</th>
+    	
+    	</tr>
+    	<%
+    	for(Product p: list){
+    		%>
+    		<tr>
+    		<td><%=p.sku %></td>
+    		<td><%=p.name %></td>
+    		<td><%=p.price %></td>
+    		<td><%=p.quantity %></td>
+    		</tr>
+    		<%
+    	}
     }
 %>
 
+</table>
 </body>
 </html>
