@@ -33,34 +33,83 @@ if (conn == null) {
 PreparedStatement pstmt = null;
 ResultSet rs = null;
 
-String action = request.getParameter("action");
-
+String action = "";
+if(request.getParameter("action") != null)
+	action = request.getParameter("action");
+String cateName = "";
+if(request.getParameter("cateName") != null)
+	cateName = request.getParameter("cateName");
+String partName = "%";
 if(action != null && action.equals("insert")){
 	String product_name = request.getParameter("product_name");
 	int SKU = Integer.parseInt(request.getParameter("SKU"));
 	int price = Integer.parseInt(request.getParameter("price"));
 	String category = request.getParameter("");
 	PreparedStatement pstmt1 = null;
-	ResultSet rs1 = null;
 	try{
 		pstmt1 = conn.prepareStatement("INSERT INTO products (name, sku, category, price) values(?, ?, ?, ?)");
-		String username = request.getParameter("username");
 		pstmt1.setString(1, product_name);
 		pstmt1.setInt(2, SKU);
 		pstmt1.setString(3, category);
 		pstmt1.setInt(4, price);
-		int row = pstmt1.executeUpdate();
-		
-		
+		int row = pstmt1.executeUpdate();		
 	}
 	catch(SQLException e){
-		
+		session.setAttribute("error", "failed to add product into category");
+		response.sendRedirect("./error.jsp");
+		return;	
 	}
 	finally{
-		pstmt1.close();
-		rs1.close();
+		if(pstmt1 != null)
+			pstmt1.close();
 	}
 }
+else if(action != null && action.equals("update")){
+	String product_name = request.getParameter("product_name");
+	int SKU = Integer.parseInt(request.getParameter("SKU"));
+	int price = Integer.parseInt(request.getParameter("price"));
+	String category = request.getParameter("");
+	PreparedStatement pstmt1 = null;
+	try{
+		pstmt1 = conn.prepareStatement("UPDATE products SET name = ?, sku = ?, category = ?, price = ? WHERE id = ?");
+		pstmt1.setString(1, product_name);
+		pstmt1.setInt(2, SKU);
+		pstmt1.setString(3, category);
+		pstmt1.setInt(4, price);
+		int row = pstmt1.executeUpdate();		
+	}
+	catch(SQLException e){
+		session.setAttribute("error", "failed to add product into category");
+		response.sendRedirect("./error.jsp");
+		return;	
+	}
+	finally{
+		if(pstmt1 != null)
+			pstmt1.close();
+	}	
+}
+/*else if(action != null && action.equals("search")){
+	partName = request.getParameter("partName");
+	PreparedStatement pstmt2 = null;
+	ResultSet rs2 = null;
+	try{
+		pstmt2 = conn.prepareStatement("Select name, sku, price, category from products where category = ? and name like ?");
+		pstmt2.setString(1, cateName);
+		pstmt2.setString(2, partName);
+		rs2 = pstmt2.executeQuery();		
+	}
+	catch(SQLException e){
+		session.setAttribute("error", "failed to add product into category");
+		response.sendRedirect("./error.jsp");
+		return;	
+	}
+	finally{
+		if(pstmt2 != null)
+			pstmt2.close();
+		if(rs2 != null)
+			rs2.close();
+	}
+}*/
 
 try {	
 %>	
@@ -91,6 +140,14 @@ try {
 			<th><input type = "submit" value = "insert"></th>																	
 			</form>
 		</tr>
+		<tr>
+			<form action = "products.jsp" method = "POST">
+				<input type = "hidden" name = "action" value = "search"/>
+				<input type = "hidden" name = "cateName" value = "<%= cateName %>"/>
+				search for:<input type = "text" name = "partName" size = "10" value = ""/>
+				<input type = "submit" value = "search">
+			</form>
+		</tr>
 	</table>
 	
 <%
@@ -118,40 +175,29 @@ try {
 				<tr>
 					<form action = "products.jsp" method = "POST">
 						<input type = "hidden" name = "action" value = "pickLink">
-						<input type = "hidden" name = "dropCate" value = "<%= rs.getString("") %>">
-						<input type = "hidden" name = "catePicked" value = "<%= rs.getString("name") %>>">
+						<input type = "hidden" name = "cateName" value = "<%= rs.getString("") %>">
 						<input type = "submit" value = "<%= rs.getString("name") %>">
 					</form>
 				</tr>		
 <%
 	}
 %>
-
-				<tr>
-					<form action = "products.jsp" method = "POST">
-						<input type = "hidden" name = "action" value = "search"/>
-						<input type = "hidden" name = "catePicked" value = "<%= cateName %>"/>
-						search for:<input type = "text" name = "searchName" size = "10" value = ""/>
-						<input type = "submit" value = "search">
-					</form>
-				</tr>
 			</table>
 		</td>
 <%
 	//String action = request.getParameter("action");
-	if(action != null && action.equals("pickLink")){
+	if(action != null && (action.equals("pickLink") || action.equals("search"))){
 		pstmt.close();
 		rs.close();
 		
 		pstmt = null;
 		rs = null;
-		
-		pstmt = conn.prepareStatement("SELECT name, sku, category, price from products WHERE category = ?");
-		String cateName = " ";
-		if(request.getParameter("catePicked") != null){
-			cateName = request.getParameter("catePicked");
+		if(request.getParameter("partName") != null){
+			partName = "%" + request.getParameter("partName") + "%";
 		}
+		pstmt = conn.prepareStatement("SELECT id, name, sku, category, price from products WHERE category = ? and name like ?");
 		pstmt.setString(1, cateName);
+		pstmt.setString(2, partName);
 		rs = pstmt.executeQuery();
 %>
 		<td>
@@ -165,15 +211,38 @@ try {
 <%
 		while(rs.next()){
 %>
-				<tr>
-					<td><%= rs.getString("name") %></td>
-					<td><%= rs.getString("sku") %></td>	
-					<td><%= rs.getString("price") %></td>
-					<td><%= rs.getString("category") %></td>	
+				<tr>	
+					<td>
+						<form action = "products.jsp" method = "POST">
+							<input type = "text" value = "<%= rs.getString("name") %>" />
+							<input type = "text" value = "<%= rs.getString("sku") %>" />	
+							<input type = "text" value = "<%= rs.getString("price") %>" />
+							<input type = "text" value = "<%= rs.getString("category") %>"/>
+<%
+			PreparedStatement pstmtD = null;
+			ResultSet rsD = null;
+			pstmtD = conn.prepareStatement("SELECT name from categories");
+			rsD = pstmt.executeQuery();
+%>
+							<SELECT name = "category">
+<%
+			while(rs.next()){
+%>
+								<option value = "<%= rs.getString("name")%>"></option>
+<%		
+			}
+%>
+							</SELECT>
+							<input type = "hidden" name = "action" value = "update"/>
+							<input type = "hidden" name = "deleteId" value = "<%= rs.getInt("id") %>"/>
+							<input type = "hidden" name = "cateName" value = "<%= cateName %>>"/>
+							<input type = "submit" value = "update"/>
+						</form>
+					</td>	
 					<td>
 						<form action = "products.jsp" method = "POST">
 							<input type = "hidden" name = "action" value = "delete"/>
-							<input type = "hidden" name = "deleteProduct" value = "<%= rs.getString("name") %>"/>
+							<input type = "hidden" name = "deleteID" value = "<%= rs.getInt("id") %>"/>
 							<input type = "submit" value = "delete"/>
 						</form>				
 					</td>
