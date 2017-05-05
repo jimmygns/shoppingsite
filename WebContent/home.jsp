@@ -9,6 +9,12 @@
 <body>
 
 <jsp:include page="./links.jsp"></jsp:include>
-
+<% 
+if(session==null||session.getAttribute("username")==null){
+		session.setAttribute("error", "No user logged in");
+		response.sendRedirect("./error.jsp");
+		return;
+	}
+%>
 </body>
 </html>

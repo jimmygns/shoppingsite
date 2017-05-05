@@ -45,6 +45,7 @@
 <tr>
 <td>
 		<ul>
+		<li><a href="./product_browsing.jsp">all</a></li>
 
 			<%
 				Connection conn = DbConnection.connect();
@@ -88,12 +89,12 @@
 			if(action!=null && action.equals("search")){
 				if(link.isEmpty()){
 					pstmt = conn.prepareStatement("SELECT * from products where name like ?");
-					pstmt.setString(1, search);
+					pstmt.setString(1, "%"+search+"%");
 				}
 				else{
 					pstmt = conn.prepareStatement("SELECT * from products where category = ? name like ?");
 					pstmt.setString(1, link);
-					pstmt.setString(2, search);
+					pstmt.setString(2, "%"+search+"%");
 				}
 				
 			}
@@ -115,6 +116,7 @@
 	<form action="./orders.jsp" method="POST">
     	<input type="hidden" name="sku" value="<%=rs.getInt(2) %>"/>
     	<input type="hidden" name="name" value="<%=rs.getString(1) %>"/>
+    	<input type="hidden" name="price" value="<%=rs.getDouble(4) %>">
     	<input type="submit" value="<%=rs.getString(1)%>" readonly="readonly"/>
     </form>
 	

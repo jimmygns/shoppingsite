@@ -36,6 +36,7 @@
 		rs = pstmt.executeQuery();
 
 		if (rs.next()) {
+			
 			session.setAttribute("username", name);
 			session.setAttribute("role", rs.getString(1));
 			session.setAttribute("age", rs.getInt(2));
