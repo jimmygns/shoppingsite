@@ -335,12 +335,12 @@ try {
 			System.out.println("in action " + action + " " + rs3.getString(2));
 %>
 				<tr>	
-					<td>
+					
 						<form action = "products.jsp" method = "POST">
-							<input type = "text" name = "name" value = "<%= rs3.getString(2) %>" />
-							<input type = "number" name = "SKU" value = "<%= rs3.getInt(3) %>" />	
-							<input type = "number" name = "price" value = "<%= rs3.getInt(5) %>" />
-							<SELECT name = "cateName" value = "<%= rs3.getString(4) %>">
+							<td><input type = "text" name = "name" value = "<%= rs3.getString(2) %>" /></td>
+							<td><input type = "number" name = "SKU" value = "<%= rs3.getInt(3) %>" />	</td>
+							<td><input type = "number" name = "price" value = "<%= rs3.getInt(5) %>" /></td>
+							<td><SELECT name = "cateName" value = "<%= rs3.getString(4) %>">
 <%
 			for(String cate:cateList){
 %>
@@ -348,19 +348,16 @@ try {
 <%		
 			}
 %>
-							</SELECT>
+							</SELECT></td>
 							<input type = "hidden" name = "action" value = "update"/>
 							<input type = "hidden" name = "id" value = "<%= rs3.getInt(1)%>"/>
 							<input type = "submit" value = "update"/>
-						</form>
-					</td>	
-					<td>
+						</form>	
 						<form action = "products.jsp" method = "POST">
 							<input type = "hidden" name = "action" value = "delete"/>
 							<input type = "hidden" name = "id" value = "<%= rs3.getInt(1)%>"/>
-							<input type = "submit" value = "delete"/>
+							<td><input type = "submit" value = "delete"/></td>
 						</form>				
-					</td>
 				</tr>
 <%
 		}
